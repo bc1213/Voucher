@@ -49,6 +49,23 @@ class ViewController: UIViewController, VoucherServerDelegate {
                 let authData = "THIS IS AN AUTH TOKEN".data(using: String.Encoding.utf8)!
                 responseHandler(authData, nil)
             }))
+            
+            let dictionaryToSend = ["iosenvironment":"https://clearws-la.oneclear.com","iosudid":"Android|e20c5a5cbd00d46e","referer":"dax.clearhub.tv","tenantid":"888","tenantids":"5001,5006,5010,5014,5021,5035,5040,5051","secretToken":"0776078023","userid":"95123"]
+
+             struct dataToPass: Codable {
+               var iosenvironment: String
+                var iosudid: String
+                var referer: String
+                var tenantid: String
+                var tenantids: String
+                var secretToken: String
+                var userid: String
+            }
+
+            let dog = dataToPass(iosenvironment: "https://clearws-la.oneclear.com", iosudid: "Android|e20c5a5cbd00d46e",referer:"dax.clearhub.tv",tenantid: "888", tenantids:  "5001,5006,5010,5014,5021,5035,5040,5051", secretToken: "0776078023", userid: "95123")
+                            
+            let authData = dog.convertToString!.data(using: String.Encoding.utf8)!
+            responseHandler(authData,nil)
 
             self.present(alertController, animated: true, completion: nil)
             
@@ -82,3 +99,17 @@ class ViewController: UIViewController, VoucherServerDelegate {
 
 }
 
+
+
+extension Encodable {
+    var convertToString: String? {
+        let jsonEncoder = JSONEncoder()
+        jsonEncoder.outputFormatting = .prettyPrinted
+        do {
+            let jsonData = try jsonEncoder.encode(self)
+            return String(data: jsonData, encoding: .utf8)
+        } catch {
+            return nil
+        }
+    }
+}

@@ -13,9 +13,15 @@ class AuthViewController: UIViewController, VoucherClientDelegate {
 
     var delegate: AuthViewControllerDelegate?
     var client: VoucherClient?
+    var randomInt = 0;
+    var deviceInfo:[String:NetService]?
+    var devices:Array<NetService>?
+    var pureDevices:Array<NetService>?
+    let stringToRemove = ["#Android", "#IOS"]
 
     @IBOutlet weak var searchingLabel: UILabel!
     @IBOutlet weak var connectionLabel: UILabel!
+    @IBOutlet weak var deviceTableView: UITableView!
 
     deinit {
         self.client?.stop()
@@ -25,8 +31,14 @@ class AuthViewController: UIViewController, VoucherClientDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.deviceTableView.delegate = self
+        self.deviceTableView.dataSource = self
+        
+        self.deviceTableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
 
-        let uniqueId = "VoucherTest";
+        randomInt = Int.random(in: 1000..<9999)
+        let uniqueId = String(randomInt)+"VoucherTest";
         self.client = VoucherClient(uniqueSharedId: uniqueId)
         self.client?.delegate = self
     }
@@ -81,12 +93,18 @@ class AuthViewController: UIViewController, VoucherClientDelegate {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    func recievedListener(_ service: Array<NetService>) {
+        print("SERVCIES \(service)")
+        devices = service
+        self.deviceTableView.reloadData()
+    }
 
     // MARK: - VoucherClientDelegate
 
     func voucherClient(_ client: VoucherClient, didUpdateSearching isSearching: Bool) {
         if isSearching {
-            self.searchingLabel.text = "📡 Searching for Voucher Servers..."
+            self.searchingLabel.text = "📡 Searching for Voucher Servers..\t Enter this code in Android Device \t"+String(randomInt)
         } else {
             self.searchingLabel.text = "❌ Not Searching."
         }
@@ -103,5 +121,42 @@ class AuthViewController: UIViewController, VoucherClientDelegate {
 
 protocol AuthViewControllerDelegate {
     func authController(_ controller:AuthViewController, didSucceed succeeded:Bool)
+}
+
+
+extension AuthViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return devices?.count ?? 0
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        let device = devices?[indexPath.row]
+        
+        if((device?.name.hasSuffix("#Android"))!){
+            cell.textLabel?.textColor = .blue
+        }else{
+            cell.textLabel?.textColor = .red
+        }
+        
+        
+        let replaceAndroid = device?.name.replacingOccurrences(of: "#Android", with: "")
+        let realDeviceName = replaceAndroid?.replacingOccurrences(of: "#IOS", with: "")
+        
+        cell.textLabel?.text = realDeviceName
+        return cell
+    }
+    
+    
+}
+
+extension AuthViewController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let device = devices?[indexPath.row]
+        print("You choosen \(device?.name)")
+        self.client?.connect(toServer: device!)
+    }
+    
 }
 

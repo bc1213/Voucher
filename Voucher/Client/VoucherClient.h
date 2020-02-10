@@ -15,6 +15,7 @@
 @optional
 - (void)voucherClient:(nonnull VoucherClient *)client didUpdateSearching:(BOOL)isSearching;
 - (void)voucherClient:(nonnull VoucherClient *)client didUpdateConnectionToServer:(BOOL)isConnectedToServer serverName:(nullable NSString *)serverName;
+-(void)recievedListener:(nonnull NSArray <NSNetService *>*)service;
 
 @end
 
@@ -35,5 +36,6 @@ typedef void (^VoucherClientCompletionHandler)( NSData * _Nullable authData, NSS
 
 - (void)startSearchingWithCompletion:(nonnull VoucherClientCompletionHandler)completionHandler;
 - (void)stop;
+- (void)connectToServer:(nonnull NSNetService *)service;
 
 @end

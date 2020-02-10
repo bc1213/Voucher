@@ -36,7 +36,7 @@
         NSString *appString = [self.uniqueSharedId stringByReplacingOccurrencesOfString:@"." withString:@"_"];
         self.serviceName = [NSString stringWithFormat:kVoucherServiceNameFormat, appString];
         if (displayName.length == 0) {
-            displayName = [UIDevice currentDevice].name;
+            displayName = [[UIDevice currentDevice].name stringByAppendingString:@"#IOS"];
         }
         self.displayName = displayName;
     }
@@ -112,11 +112,24 @@
 #pragma mark - Overall Events
 
 
+
 - (void)handleReceivedData:(NSData *)data
 {
-    // We send/receive information as a NSDictionary written out
-    // as NSData, so convert from NSData --> NSDictionary
-    NSDictionary *dict = (NSDictionary *)[NSKeyedUnarchiver unarchiveObjectWithData:data];
+    //bharath changes: printing logs
+    NSLog(@"Received data of length: %lu", (unsigned long)data.length);
+    NSString* handleReceivedDataRes = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSLog(@"handleReceivedData %@", handleReceivedDataRes);
+    NSArray *items = [handleReceivedDataRes componentsSeparatedByString:@"#"];   //take the one array for split the string
+
+    NSString *appleTvName=[items objectAtIndex:1];
+    NSString *udid=[items objectAtIndex:2];
+    
+    NSDictionary *dict = nil;
+    dict = @{@"authData" : udid, @"displayName" :appleTvName};
+//
+//    // We send/receive information as a NSDictionary written out
+//    // as NSData, so convert from NSData --> NSDictionary
+//    NSDictionary *dict = (NSDictionary *)[NSKeyedUnarchiver unarchiveObjectWithData:data];
     [self handleIncomingRequestDictionary:dict];
 }
 
@@ -140,12 +153,26 @@
                 responseDict = @{@"displayName" : _weakSelf.displayName};
             }
             NSData *responseData = [NSKeyedArchiver archivedDataWithRootObject:responseDict];
-            [_weakSelf sendData:responseData];
+            //bharath changes:
+            NSData *requestData = [self convertToJavaUTF8: [[NSString alloc] initWithData:authData encoding:NSASCIIStringEncoding]];
+             
+            [_weakSelf sendData:requestData];
 
         });
     }
 }
 
+
+- (NSData*) convertToJavaUTF8 : (NSString*) str {
+    NSUInteger len = [str lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    Byte buffer[2];
+    buffer[0] = (0xff & (len >> 8));
+    buffer[1] = (0xff & len);
+    NSMutableData *outData = [NSMutableData dataWithCapacity:2];
+    [outData appendBytes:buffer length:2];
+    [outData appendData:[str dataUsingEncoding:NSUTF8StringEncoding]];
+    return outData;
+}
 
 - (void)handleStreamEnd:(NSStream *)stream
 {

@@ -417,6 +417,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -780,7 +781,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.rizwansattar.Voucher-iOS-App";
 				PRODUCT_NAME = "Voucher iOS App";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -793,7 +794,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.rizwansattar.Voucher-iOS-App";
 				PRODUCT_NAME = "Voucher iOS App";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};
@@ -809,7 +810,7 @@
 				PRODUCT_NAME = "Voucher tvOS App";
 				SDKROOT = appletvos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 			};
@@ -826,7 +827,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.rizwansattar.Voucher-tvOS-App";
 				PRODUCT_NAME = "Voucher tvOS App";
 				SDKROOT = appletvos;
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 			};

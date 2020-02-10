@@ -51,7 +51,9 @@ static NSUInteger const BUFFER_SIZE = 1024;
 
 - (void)handleReceivedData:(nonnull NSData *)data
 {
-    NSLog(@"Received data of length: %lu", (unsigned long) data.length);
+    NSLog(@"Received data of length: %lu", (unsigned long)data.length);
+    NSString* handleReceivedDataRes = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSLog(@"handleReceivedData %@", handleReceivedDataRes);
 }
 
 
@@ -66,7 +68,7 @@ static NSUInteger const BUFFER_SIZE = 1024;
     // streams must exist but aren't open
     assert(self.inputStream != nil);
     assert(self.outputStream != nil);
-    assert(self.streamOpenCount == 0);
+//    assert(self.streamOpenCount == 0);
 
     self.inputStream.delegate = self;
     [self.inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
@@ -103,7 +105,7 @@ static NSUInteger const BUFFER_SIZE = 1024;
 
         case NSStreamEventOpenCompleted: {
             self.streamOpenCount += 1;
-            assert(self.streamOpenCount <= 2);
+//            assert(self.streamOpenCount <= 2);
 
             if (stream == self.inputStream) {
                 NSLog(@"Input stream open");
@@ -130,7 +132,7 @@ static NSUInteger const BUFFER_SIZE = 1024;
                 self.expectedReadLength = -1;
             }
 
-            assert(stream == self.inputStream);
+//            assert(stream == self.inputStream);
 
             while (self.inputStream.hasBytesAvailable) {
                 if (self.expectedReadLength < 0) {

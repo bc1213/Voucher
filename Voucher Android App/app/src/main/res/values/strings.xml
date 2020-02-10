@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">AppleTvLogin</string>
+
+    <string name="SignIN">Sign in to Voucher App on your APPLE TV</string>
+    <string name="Des_msg">To sign in, make sure your Android device and Apple TV are connected to the same WiFi network.</string>
+    <string name="Enter_code">Enter 4 digit code shown in Apple TV</string>
+    <string name="search_wifi">Searching for TV...</string>
+</resources>

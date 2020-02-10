@@ -94,8 +94,28 @@
 - (void)connectToAvailableServer
 {
     if (!self.isConnectedToServer && self.currentlyAvailableServices.count > 0) {
-        NSNetService *service = self.currentlyAvailableServices[0];
-        [self connectToServer:service];
+        NSNetService *service = self.currentlyAvailableServices[0];//TODO 1 for other connections and see this
+        
+        //bharath changes
+        NSLog(@"Total Found devices :%lu",(unsigned long)self.currentlyAvailableServices.count);
+        for (service in self.currentlyAvailableServices){
+            NSLog(@"Device Name %@",service.name);
+            NSLog(@"Device Port %ld",(long)service.port);
+            NSLog(@"Device Host %@",service.hostName);
+            NSLog(@"Device address %@",service.addresses);
+            NSLog(@"Device Domain %@",service.domain);
+            NSLog(@"Device Type %@",service.type);
+            NSLog(@"Device txt data %@",service.TXTRecordData);
+            NSLog(@"Device Icludes p2p %@",service.includesPeerToPeer? @"Yes":@"No");
+            NSLog(@"Device observationInfo %@",service.observationInfo);
+            NSLog(@"Device Info ---------++++++--------");
+        }
+        NSLog(@"Connecting to first devices %@",self.currentlyAvailableServices[0]);
+        
+//        sleep(2);
+        
+        
+     //  [self connectToServer:service];
     } else {
         NSLog(@"No available server to connect to, yet.");
     }
@@ -105,9 +125,9 @@
 {
     NSAssert(self.currentlyAvailableServices.count > 0,
              @"Tried to select a service when none were available");
-    if (service == nil) {
-        service = self.currentlyAvailableServices[0];
-    }
+//    if (service == nil) {
+//        service = self.currentlyAvailableServices[0];
+//    }
     NSAssert([self.currentlyAvailableServices containsObject:service],
              @"Tried to select a service which we don't know about");
 
@@ -149,9 +169,27 @@
 
 - (void)sendAuthRequest
 {
-    NSDictionary *requestDict = @{@"displayName" : self.displayName};
-    NSData *requestData = [NSKeyedArchiver archivedDataWithRootObject:requestDict];
+    NSData *requestData = [self convertToJavaUTF8:self.displayName];
     [self sendData:requestData];
+}
+
+
+- (NSData*) convertToJavaUTF8 : (NSString*) str {
+    NSString *delimiter = @"#";
+    str = [delimiter stringByAppendingString:str];
+    NSString *deviceID = UIDevice.currentDevice.identifierForVendor.UUIDString;
+    str = [str stringByAppendingString:delimiter];
+    str = [str stringByAppendingString:deviceID];
+    str = [str stringByAppendingString:@"\n"];
+    NSUInteger len = [str lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    Byte buffer[2];
+    buffer[0] = (0xff & (len >> 8));
+    buffer[1] = (0xff & len);
+    NSMutableData *outData = [NSMutableData dataWithCapacity:2];
+    [outData appendBytes:buffer length:2];
+    [outData appendData:[str dataUsingEncoding:NSUTF8StringEncoding]];
+    return outData;
+    
 }
 
 
@@ -162,7 +200,7 @@
     NSData *authData = responseDict[@"authData"];
     NSString *responderDisplayName = responseDict[@"displayName"];
     if (self.completionHandler) {
-        self.completionHandler(authData, responderDisplayName, nil);
+        self.completionHandler(data, @"responderDisplayName", nil);
     }
     [self stop];
 }
@@ -212,7 +250,15 @@
     if (![self.currentlyAvailableServices containsObject:service]) {
         [self.currentlyAvailableServices addObject:service];
     }
-    [self connectToAvailableServer];
+    
+    [self.delegate recievedListener:self.currentlyAvailableServices];
+    
+    if(moreComing == true){
+        NSLog(@"More devices are on the way");
+    }
+    else{
+        [self connectToAvailableServer];
+    }
 }
 
 /* Sent to the NSNetServiceBrowser instance's delegate when a previously discovered domain is no longer available.
@@ -230,6 +276,7 @@
     if ([self.currentlyAvailableServices containsObject:service]) {
         [self.currentlyAvailableServices removeObject:service];
     }
+    [self.delegate recievedListener:self.currentlyAvailableServices];
     if (!moreComing) {
         // No more to remove, now check if our server is one of them, and if so, disconnect, and go back to searching
         if (self.server && ![self.currentlyAvailableServices containsObject:self.server]) {
