@@ -59,6 +59,13 @@
                                     <action selector="onStartButton:" destination="BYZ-38-t0r" eventType="touchDown" id="0qc-n3-JSU"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Searching for Apple TV" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vkx-1O-9kX">
+                                <rect key="frame" x="54" y="704" width="311" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
@@ -74,11 +81,12 @@
                         <outlet property="connectionStatusLabel" destination="GnL-3K-dXm" id="mEP-Ai-sdn"/>
                         <outlet property="inputTextFiled" destination="uUf-gy-iCB" id="zVz-Op-Ig7"/>
                         <outlet property="serverStatusLabel" destination="lrv-D6-BHt" id="b65-lc-OQ0"/>
+                        <outlet property="timerLabel" destination="vkx-1O-9kX" id="8Dv-lD-T6e"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="523" y="380"/>
+            <point key="canvasLocation" x="521.73913043478262" y="379.6875"/>
         </scene>
     </scenes>
 </document>

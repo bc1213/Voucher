@@ -18,10 +18,15 @@ class ViewController: UIViewController, VoucherServerDelegate {
     @IBOutlet var inputTextFiled: UITextField!
     @IBOutlet var buttonStart: UIButton!
     @IBOutlet var viewController: UIViewController!
+    @IBOutlet var timerLabel: UILabel!
     
     var indicator: UIActivityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.gray);
-   
+    let effectView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
+    var timer = Timer()
 
+    var counter = 10
+    
+    
     deinit {
         self.server?.stop()
         self.server?.delegate = nil
@@ -50,34 +55,34 @@ class ViewController: UIViewController, VoucherServerDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        self.server?.startAdvertising { (displayName, responseHandler) -> Void in
-
-            let alertController = UIAlertController(title: "Allow Auth?", message: "Allow \"\(displayName)\" access to your login?", preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: "Not Now", style: .cancel, handler: { action in
-                responseHandler(nil, nil)
-            }))
-
-            alertController.addAction(UIAlertAction(title: "Allow", style: .default, handler: { action in
-                // For our authData, use a token string (to simulate an OAuth token, for example)
-                let authData = "THIS IS AN AUTH TOKEN".data(using: String.Encoding.utf8)!
-                responseHandler(authData, nil)
-            }))
-            
-            let dictionaryToSend = ["deviceID":"IOS|ANANJAN1256","secretToken":"somethingToken","userid":"User_1212"]
-
-             struct dataToPass: Codable {
-                var deviceID: String
-                var secretToken: String
-                var userid: String
-            }
-
-            let dog = dataToPass(deviceID:  "IOS|ANANJAN1256", secretToken: "somethingToken", userid: "User_1212")
-            let authData = dog.convertToString!.data(using: String.Encoding.utf8)!
-            responseHandler(authData,nil)
-
-            self.present(alertController, animated: true, completion: nil)
-            
-        }
+//        self.server?.startAdvertising { (displayName, responseHandler) -> Void in
+//
+//            let alertController = UIAlertController(title: "Allow Auth?", message: "Allow \"\(displayName)\" access to your login?", preferredStyle: .alert)
+//            alertController.addAction(UIAlertAction(title: "Not Now", style: .cancel, handler: { action in
+//                responseHandler(nil, nil)
+//            }))
+//
+//            alertController.addAction(UIAlertAction(title: "Allow", style: .default, handler: { action in
+//                // For our authData, use a token string (to simulate an OAuth token, for example)
+//                let authData = "THIS IS AN AUTH TOKEN".data(using: String.Encoding.utf8)!
+//                responseHandler(authData, nil)
+//            }))
+//
+//            let dictionaryToSend = ["deviceID":"IOS|ANANJAN1256","secretToken":"somethingToken","userid":"User_1212"]
+//
+//             struct dataToPass: Codable {
+//                var deviceID: String
+//                var secretToken: String
+//                var userid: String
+//            }
+//
+//            let dog = dataToPass(deviceID:  "IOS|ANANJAN1256", secretToken: "somethingToken", userid: "User_1212")
+//            let authData = dog.convertToString!.data(using: String.Encoding.utf8)!
+//            responseHandler(authData,nil)
+//
+//            self.present(alertController, animated: true, completion: nil)
+//
+//        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -116,8 +121,56 @@ class ViewController: UIViewController, VoucherServerDelegate {
             self.server?.delegate = self
             self.startServer()
             indicator.startAnimating()
+            hideElements(isHidden: true)
+            timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector:#selector(timerAction), userInfo: nil, repeats: false)
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 10.0, execute: {
+//                self.hideElements(isHidden: false)
+//                self.indicator.stopAnimating()
+//            })
         }
     }
+    
+    @objc func timerAction() {
+        if(counter > 0){
+            timerLabel.text="Searching for AppleTV (00:"+String(counter)+")"
+            counter -= 1
+            return;
+        }
+        self.hideElements(isHidden: false)
+        self.indicator.stopAnimating()
+        
+        let alertController = UIAlertController(title: "No Apple TV found", message: "Make sure your Android device and Apple TV are connected to the same WiFi network", preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "Close", style: .cancel, handler: { action in
+            self.server?.stop()
+            self.server?.delegate = nil
+            self.server = nil
+        }))
+
+        alertController.addAction(UIAlertAction(title: "Try Again !", style: .default, handler: { action in
+            self.server?.stop()
+            self.server?.delegate = nil
+            self.server = nil
+        }))
+        self.present(alertController, animated: true, completion: nil)
+        
+    }
+    
+    func hideElements(isHidden: Bool){
+        if(isHidden == true){
+//            serverStatusLabel.removeFromSuperview()
+//            connectionStatusLabel.removeFromSuperview()
+            self.inputTextFiled.isHidden=true
+            self.buttonStart.isHidden=true
+        }else{
+//            serverStatusLabel.addSubview(effectView)
+//            connectionStatusLabel.addSubview(effectView)
+            self.inputTextFiled.isHidden=false
+            self.buttonStart.isHidden=false
+        }
+        
+    }
+    
+    
     
     func startServer(){
         self.server?.startAdvertising { (displayName, responseHandler) -> Void in
